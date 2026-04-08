@@ -103,7 +103,7 @@
 
   function buildApiUrl(config) {
     const ref = encodeURIComponent(config.githubBranch || DEFAULT_CONFIG.githubBranch);
-    return `https://api.github.com/repos/${encodeURIComponent(config.githubOwner)}/${encodeURIComponent(config.githubRepo)}/contents/${encodePath(config.dataPath)}?ref=${ref}`;
+    return `https://api.github.com/repos/${encodeURIComponent(config.githubOwner)}/${encodeURIComponent(config.githubRepo)}/contents/${encodePath(config.dataPath)}?ref=${ref}&_=${Date.now()}`;
   }
 
   function decodeBase64Utf8(base64Text) {
@@ -122,6 +122,7 @@
       districtName: item.districtName || '',
       author: item.author || '',
       postedAt: item.postedAt || '',
+      thumbnailUrl: item.thumbnailUrl || '',
       favoritedAt: item.favoritedAt || '',
     };
   }
@@ -132,8 +133,11 @@
       headers: {
         Accept: 'application/vnd.github+json',
         Authorization: `Bearer ${config.githubToken}`,
+        'Cache-Control': 'no-cache',
+        Pragma: 'no-cache',
         'X-GitHub-Api-Version': '2022-11-28',
       },
+      cache: 'no-store',
     });
 
     if (response.status === 404) {
@@ -186,7 +190,8 @@
 
   function updateForumFilter(items) {
     const currentValue = elements.forumFilter.value;
-    const forums = Array.from(new Set(items.map((item) => item.forumName).filter(Boolean))).sort((left, right) => left.localeCompare(right, 'zh-CN'));
+    const forums = Array.from(new Set(items.map((item) => item.forumName).filter(Boolean)))
+      .sort((left, right) => left.localeCompare(right, 'zh-CN'));
 
     elements.forumFilter.innerHTML = '<option value="">全部版块</option>';
     for (const forum of forums) {
@@ -246,12 +251,21 @@
         item.author ? `<span class="favorite-chip">作者: ${escapeHtml(item.author)}</span>` : '',
       ].filter(Boolean).join('');
 
+      const media = item.thumbnailUrl
+        ? `<a class="favorite-thumb" href="${escapeAttribute(item.url)}" target="_blank" rel="noopener noreferrer"><img src="${escapeAttribute(item.thumbnailUrl)}" alt="${escapeAttribute(item.title)}" loading="lazy" /></a>`
+        : '<div class="favorite-thumb favorite-thumb-empty" aria-hidden="true"></div>';
+
       article.innerHTML = `
-        <h3>${escapeHtml(item.title)}</h3>
-        <div class="favorite-meta">${chips}</div>
-        <div class="favorite-footer">
-          <div class="favorite-time">收藏时间: ${escapeHtml(formatDate(item.favoritedAt))}</div>
-          <a class="favorite-link" href="${escapeAttribute(item.url)}" target="_blank" rel="noopener noreferrer">打开原帖</a>
+        <div class="favorite-card-inner">
+          ${media}
+          <div class="favorite-content">
+            <h3>${escapeHtml(item.title)}</h3>
+            <div class="favorite-meta">${chips}</div>
+            <div class="favorite-footer">
+              <div class="favorite-time">收藏时间: ${escapeHtml(formatDate(item.favoritedAt))}</div>
+              <a class="favorite-link" href="${escapeAttribute(item.url)}" target="_blank" rel="noopener noreferrer">打开原帖</a>
+            </div>
+          </div>
         </div>
       `;
 
