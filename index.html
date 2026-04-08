@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>kdsq 收藏夹</title>
+    <meta
+      name="description"
+      content="Read favorites from a private GitHub repository and browse them on a responsive static page."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">kdsq Favorites</p>
+          <h1>收藏夹</h1>
+          <p class="hero-text">
+            这个页面只负责读取私有仓库里的 <code>favorites.json</code> 并展示。首次使用时，先保存 GitHub 配置。
+          </p>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-label">收藏数量</span>
+            <strong id="favoriteCount">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">最后同步</span>
+            <strong id="lastUpdated">未同步</strong>
+          </div>
+        </div>
+      </header>
+
+      <main class="layout">
+        <aside class="panel settings-panel">
+          <div class="panel-header">
+            <h2>GitHub 配置</h2>
+            <p>配置只保存在当前浏览器本地。</p>
+          </div>
+
+          <form id="configForm" class="config-form">
+            <label>
+              <span>GitHub Owner</span>
+              <input id="githubOwner" name="githubOwner" autocomplete="off" required />
+            </label>
+
+            <label>
+              <span>Private Repo</span>
+              <input id="githubRepo" name="githubRepo" autocomplete="off" required />
+            </label>
+
+            <label>
+              <span>Branch</span>
+              <input id="githubBranch" name="githubBranch" autocomplete="off" />
+            </label>
+
+            <label>
+              <span>Data Path</span>
+              <input id="dataPath" name="dataPath" autocomplete="off" />
+            </label>
+
+            <label>
+              <span>Fine-grained PAT</span>
+              <input id="githubToken" name="githubToken" type="password" autocomplete="off" required />
+            </label>
+
+            <div class="button-row">
+              <button type="submit" class="primary">保存并读取</button>
+              <button type="button" id="refreshButton" class="secondary">刷新</button>
+              <button type="button" id="clearTokenButton" class="ghost">清空令牌</button>
+            </div>
+          </form>
+
+          <div id="statusBanner" class="status-banner" data-tone="neutral">
+            先输入 GitHub 配置，再读取收藏数据。
+          </div>
+        </aside>
+
+        <section class="panel content-panel">
+          <div class="panel-header">
+            <h2>收藏列表</h2>
+            <p>支持关键词搜索和按版块筛选。</p>
+          </div>
+
+          <div class="toolbar">
+            <label class="toolbar-field">
+              <span>搜索标题</span>
+              <input id="searchInput" type="search" placeholder="输入关键词" />
+            </label>
+
+            <label class="toolbar-field">
+              <span>版块</span>
+              <select id="forumFilter">
+                <option value="">全部版块</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="emptyState" class="empty-state">
+            <h3>还没有可展示的收藏</h3>
+            <p>如果你已经在油猴脚本里收藏过帖子，先确认这里的仓库配置和脚本一致。</p>
+          </div>
+
+          <div id="favoritesList" class="favorites-list" aria-live="polite"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
