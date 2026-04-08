@@ -303,7 +303,7 @@
   }
 
   async function fetchFavorites(config) {
-    const attempts = [() => fetchFavoritesViaLocal(config)];
+    const attempts = [];
 
     if (config.githubToken) {
       attempts.push(() => fetchFavoritesViaApi(config, true));
@@ -311,6 +311,7 @@
 
     attempts.push(() => fetchFavoritesViaApi(config, false));
     attempts.push(() => fetchFavoritesViaRaw(config));
+    attempts.push(() => fetchFavoritesViaLocal(config));
 
     let lastError = null;
 
