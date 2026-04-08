@@ -260,6 +260,50 @@ button.ghost {
   box-shadow: 0 16px 34px rgba(71, 42, 24, 0.08);
 }
 
+.favorite-card-inner {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.favorite-thumb {
+  display: block;
+  width: 148px;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 16px;
+  background: rgba(231, 213, 188, 0.5);
+  text-decoration: none;
+}
+
+.favorite-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.favorite-thumb-empty {
+  position: relative;
+}
+
+.favorite-thumb-empty::after {
+  content: "No Image";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.favorite-content {
+  min-width: 0;
+}
+
 .favorite-card h3 {
   margin: 0 0 12px;
   font-size: 1.1rem;
@@ -357,6 +401,15 @@ button.ghost {
 
   .favorite-footer {
     align-items: stretch;
+  }
+
+  .favorite-card-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .favorite-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
   }
 
   .favorite-link {
