@@ -106,6 +106,11 @@
     return `https://api.github.com/repos/${encodeURIComponent(config.githubOwner)}/${encodeURIComponent(config.githubRepo)}/contents/${encodePath(config.dataPath)}?ref=${ref}&_=${Date.now()}`;
   }
 
+  function buildLocalUrl(config) {
+    const cleanPath = String(config.dataPath || DEFAULT_CONFIG.dataPath).replace(/^\/+/, '');
+    return `./${cleanPath}?_=${Date.now()}`;
+  }
+
   function buildRawUrl(config) {
     const branch = encodeURIComponent(config.githubBranch || DEFAULT_CONFIG.githubBranch);
     return `https://raw.githubusercontent.com/${encodeURIComponent(config.githubOwner)}/${encodeURIComponent(config.githubRepo)}/${branch}/${encodePath(config.dataPath)}?_=${Date.now()}`;
@@ -215,8 +220,46 @@
     };
   }
 
+  async function fetchFavoritesViaLocal(config) {
+    const response = await fetch(buildLocalUrl(config), {
+      method: 'GET',
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache',
+        Pragma: 'no-cache',
+      },
+    });
+
+    if (response.status === 404) {
+      return {
+        version: 1,
+        updatedAt: null,
+        items: [],
+      };
+    }
+
+    if (!response.ok) {
+      throw new Error(`Local fetch failed with status ${response.status}`);
+    }
+
+    const text = await response.text();
+    const parsed = parseJson(text, {
+      version: 1,
+      updatedAt: null,
+      items: [],
+    });
+
+    return {
+      version: 1,
+      updatedAt: parsed.updatedAt || null,
+      items: Array.isArray(parsed.items) ? parsed.items.map(normalizeItem) : [],
+    };
+  }
+
   async function fetchFavorites(config) {
     const attempts = [];
+
+    attempts.push(() => fetchFavoritesViaLocal(config));
 
     if (config.githubToken) {
       attempts.push(() => fetchFavoritesViaApi(config, true));
